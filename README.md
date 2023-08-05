@@ -76,7 +76,7 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
-    - uses: humbertocrispim/github-action-ssh-docker-compose@v0.2.0-beta
+    - uses: humbertocrispim/ssh-docker-compose-action@v1.0.0
       name: Implantação Remota com Docker-Compose
       with:
         ssh_host: example.com
@@ -104,7 +104,7 @@ jobs:
     steps:
     - actions/chockout@v2
 
-    - uses: humbertocrispim/github-action-ssh-docker-compose@v0.2.0-beta
+    - uses: humbertocrispim/ssh-docker-compose-action@v1.0.0
       name: Implantação Remota com Docker-Stack
       with:
         ssh_host: example.com
