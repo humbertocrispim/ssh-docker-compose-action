@@ -28,7 +28,7 @@ ssh-keygen -t ed25519 -f ~/.ssh/deploy_key
 
 ```
 
-1. Create a user on the remote server that will be responsible for deploying the containers. Do not set a password for this user:
+2. Create a user on the remote server that will be responsible for deploying the containers. Do not set a password for this user:
 
 ```
 ssh example.com
@@ -36,7 +36,7 @@ $ sudo useradd -m -b /var/lib -G docker docker-deploy
 
 ```
 
-1. Allow login to this user using the key generated in step one:
+3. Allow login to this user using the key generated in step one:
 
 ```
 scp deploy_key.pub example.com:~
@@ -49,22 +49,23 @@ $ rm deploy_key.pub
 
 ```
 
-1. Test access to the server:
+4. Test access to the server:
 
 ```
 ssh -i deploy_key docker-deploy@example.com
 
 ```
 
-1. Add the private key and username to the repository secrets. Suppose the names of the secrets are `EXAMPLE_COM_SSH_PRIVATE_KEY` and `EXAMPLE_COM_SSH_USER`.
-2. Remove your local copy of the SSH key:
+5. Add the private key and username to the repository secrets. Suppose the names of the secrets are `EXAMPLE_COM_SSH_PRIVATE_KEY` and `EXAMPLE_COM_SSH_USER`.
+
+6. Remove your local copy of the SSH key:
 
 ```
 rm deploy_key
 
 ```
 
-1. Configure the GitHub Actions workflow (for example, `.github/workflows/main.yml`):
+7. Configure the GitHub Actions workflow (for example, `.github/workflows/main.yml`):
 
 ```
 name: Deploy
@@ -91,7 +92,7 @@ jobs:
 
 ```
 
-1. Everything is set!
+8. Everything is set!
 
 # Swarm & Stack
 
