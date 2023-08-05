@@ -1,46 +1,39 @@
-## github-action-ssh-docker-compose
-Simple github action to run docker-compose on remote host.
+## Docker Compose Deployment (SSH)
+Esta ação do GitHub proporciona a capacidade de executar o `docker-compose` em um servidor remoto por meio de uma conexão SSH. O processo envolve compactar o espaço de trabalho em um arquivo, transferi-lo via SSH para o servidor remoto e, posteriormente, executar o comando `docker-compose up -d`.
 
-This action packs contents of the action workspace into archive.
-Logs into remote host via ssh. Unpacks the workspace there and runs
-`docker-compose up -d` command.
-
-Comparing to other actions with similar behavior this one does not use any
-unknown docker-images. It is entirely built from Dockerfile on top of
-`alpine:3.8`.
+O diferencial desta ação em relação a outras similares é a sua independência de imagens Docker desconhecidas. A ação é construída a partir de um Dockerfile que utiliza a base `alpine:3.18`.
 
 ## Inputs
 
- * `ssh_private_key` - Private SSH key used for logging into remote system.
-   Please, keep your key securely in github secrets.
- * `ssh_host` - Remote host name.
- * `ssh_port` - Remote port for SSH connection. Default is 22.
- * `ssh_user` - Remote user which should have access to docker.
- * `docker_compose_prefix` - Project name passed to compose. Each docker
-   container will have this prefix in name.
- * `docker_compose_filename` - Path to the docker-compose file in the repository.
- * `use_stack` - Use docker stack instead of docker-compose.
+* `ssh_private_key` - Chave SSH privada para autenticação no sistema remoto. Aconselha-se manter essa chave segura nas secrets do GitHub.
+* `ssh_host` - Nome do Host SSH.
+* `ssh_port` - Porta remota, padrão é 22.
+* `ssh_user` - Nome de usuário remoto com permissões para acessar o Docker.
+* `docker_compose_prefix` - Prefixo do projeto passado para o `docker-compose`. Cada contêiner Docker será nomeado com esse prefixo.
+* `docker_compose_filename` - Caminho do arquivo docker-compose no repositório.
+* `use_stack` - Utilizar 'docker stack' em vez de 'docker-compose'.
+* `pull` - Atualizar imagens ao realizar o pull, padrão é `false`.
 
-# Usage example
+# Exemplo de uso
 
-Let's say we have a repo with single docker-compose file in it and remote
-ubuntu based server with docker and docker-compose installed.
+Suponhamos que possuímos um repositório contendo apenas um arquivo `docker-compose`, e temos um servidor remoto baseado em Ubuntu com Docker e Docker Compose instalados.
 
-1. Generate key pair, do not use a password here.
+Siga os passos abaixo:
+
+1. Gere um par de chaves (não utilize uma senha):
 
 ```
-ssh-keygen -t ed25519 deploy_key
+ssh-keygen -t ed25519 -f ~/.ssh/deploy_key
 ```
 
-2. Create a user which will deploy containers for you on the remote server, do
-not set password for this user:
+2. Crie um usuário no servidor remoto que será responsável por implantar os containers. Não defina uma senha para este usuário:
 
 ```
 ssh example.com
 $ sudo useradd -m -b /var/lib -G docker docker-deploy
 ```
 
-3. Allow to log into that user with the key you generated on the step one.
+3. Permita o login neste usuário usando a chave gerada na etapa um:
 
 ```
 scp deploy_key.pub example.com:~
@@ -52,25 +45,23 @@ $ sudo chmod 0500 /var/lib/docker-deploy/.ssh
 $ rm deploy_key.pub
 ```
 
-4. Test that key works.
+4. Teste o acesso ao servidor:
 
 ```
 ssh -i deploy_key docker-deploy@example.com
 ```
 
-5. Add private key and user name into secrets for the repository. Let's say that
-names of the secrets are `EXAMPLE_COM_SSH_PRIVATE_KEY` and
-`EXAMPLE_COM_SSH_USER`.
+5. Adicione a chave privada e o nome de usuário nas secrets do repositório. Suponha que os nomes das secrets sejam `EXAMPLE_COM_SSH_PRIVATE_KEY` e `EXAMPLE_COM_SSH_USER`.
 
-6. Remove your local copy of the ssh key:
+6. Remova sua cópia local da chave SSH:
 
 ```
 rm deploy_key
 ```
 
-7. Setup a github-actions workflow (e.g. `.github/workflows/main.yml`):
+7. Configure o workflow do GitHub Actions (por exemplo, `.github/workflows/main.yml`):
 
-```
+```yaml
 name: Deploy
 
 on:
@@ -85,7 +76,7 @@ jobs:
     - uses: actions/checkout@v2
 
     - uses: humbertocrispim/github-action-ssh-docker-compose@v0.2.0-beta
-      name: Docker-Compose Remote Deployment
+      name: Implantação Remota com Docker-Compose
       with:
         ssh_host: example.com
         ssh_private_key: ${{ secrets.EXAMPLE_COM_SSH_PRIVATE_KEY }}
@@ -93,15 +84,13 @@ jobs:
         docker_compose_prefix: example_com
 ```
 
-8. You're all set!
+8. Tudo está pronto!
 
 # Swarm & Stack
 
-In case you want to use some advanced features like secrets. You'll need to
-setup a docker swarm cluster and use docker stack command instead of the plain
-docker-compose. To do that just set `use_stack` input to `"true"`:
+Se você deseja utilizar recursos avançados como secrets, é necessário configurar um cluster Docker Swarm e utilizar o comando 'docker stack' em vez do simples 'docker-compose'. Para isso, defina o parâmetro `use_stack` como `true`:
 
-```
+```yaml
 name: Deploy
 on:
   push:
@@ -115,7 +104,7 @@ jobs:
     - actions/chockout@v2
 
     - uses: humbertocrispim/github-action-ssh-docker-compose@v0.2.0-beta
-      name: Docker-Stack Remote Deployment
+      name: Implantação Remota com Docker-Stack
       with:
         ssh_host: example.com
         ssh_private_key: ${{ secrets.EXAMPLE_COM_SSH_PRIVATE_KEY }}
@@ -124,3 +113,4 @@ jobs:
         use_stack: 'true'
 ```
 
+Isso deve proporcionar uma implantação eficiente e controlada de contêineres Docker em um ambiente remoto através do GitHub Actions.
