@@ -83,6 +83,7 @@ jobs:
         ssh_private_key: ${{ secrets.EXAMPLE_COM_SSH_PRIVATE_KEY }}
         ssh_user: ${{ secrets.EXAMPLE_COM_SSH_USER }}
         docker_compose_prefix: example_com
+        pull: true # Atualizar imagens ao fazer o pull
 ```
 
 8. Tudo está pronto!
@@ -112,7 +113,6 @@ jobs:
         ssh_user: ${{ secrets.EXAMPLE_COM_SSH_USER }}
         docker_compose_prefix: example.com
         use_stack: 'true'
-        pull: true # Atualizar imagens ao fazer o pull
 ```
 
 Isso deve proporcionar uma implantação eficiente e controlada de contêineres Docker em um ambiente remoto através do GitHub Actions.
