@@ -1,40 +1,42 @@
-#
+# Run Docker Compose on a Remote Server through SSH with GitHub Actions
 
-Esta ação do GitHub proporciona a capacidade de executar o `docker-compose` em um servidor remoto por meio de uma conexão SSH. O processo envolve compactar o espaço de trabalho em um arquivo, transferi-lo via SSH para o servidor remoto e, posteriormente, executar o comando `docker-compose up -d`.
+This GitHub action allows you to run `docker compose` on a remote server through an SSH connection. The process involves compressing the workspace into a file, transferring it via SSH to the remote server, and then running the `docker compose up -d` command.
 
-O diferencial desta ação em relação a outras similares é a sua independência de imagens Docker desconhecidas. A ação é construída a partir de um Dockerfile que utiliza a base `alpine:3.18`.
+This action stands out because it doesn't require the use of unknown Docker images. Instead, the action is built from a Dockerfile that uses the `alpine` base.
 
 ## Inputs
 
-* `ssh_private_key` - Chave SSH privada para autenticação no sistema remoto. Aconselha-se manter essa chave segura nas secrets do GitHub.
-* `ssh_host` - Nome do Host SSH.
-* `ssh_port` - Porta remota, padrão é 22.
-* `ssh_user` - Nome de usuário remoto com permissões para acessar o Docker.
-* `docker_compose_prefix` - Prefixo do projeto passado para o `docker-compose`. Cada contêiner Docker será nomeado com esse prefixo.
-* `docker_compose_filename` - Caminho do arquivo docker-compose no repositório.
-* `use_stack` - Utilizar 'docker stack' em vez de 'docker-compose'.
-* `pull` - Atualizar imagens ao realizar o pull, padrão é `false`.
+- `ssh_private_key` - Private SSH key for authentication on the remote system. It is recommended to keep this key secure in GitHub secrets.
+- `ssh_host` - SSH Host Name.
+- `ssh_port` - Remote port, default is 22.
+- `ssh_user` - Remote username with permissions to access Docker.
+- `docker_compose_prefix` - Project prefix passed to `docker-compose`. Each Docker container will be named with this prefix.
+- `docker_compose_filename` - Path to the docker-compose file in the repository.
+- `use_stack` - Use 'docker stack' instead of 'docker-compose'.
+- `pull` - Update images when performing a pull, default is `false`.
 
-# Exemplo de uso
+# Usage Example
 
-Suponhamos que possuímos um repositório contendo apenas um arquivo `docker-compose`, e temos um servidor remoto baseado em Ubuntu com Docker e Docker Compose instalados.
+Let's assume we have a repository containing only a `docker-compose` file, and we have a remote server based on Ubuntu with Docker and Docker Compose installed.
 
-Siga os passos abaixo:
+Follow these steps:
 
-1. Gere um par de chaves (não utilize uma senha):
+1. Generate a key pair (do not use a password):
 
 ```
 ssh-keygen -t ed25519 -f ~/.ssh/deploy_key
+
 ```
 
-2. Crie um usuário no servidor remoto que será responsável por implantar os containers. Não defina uma senha para este usuário:
+1. Create a user on the remote server that will be responsible for deploying the containers. Do not set a password for this user:
 
 ```
 ssh example.com
 $ sudo useradd -m -b /var/lib -G docker docker-deploy
+
 ```
 
-3. Permita o login neste usuário usando a chave gerada na etapa um:
+1. Allow login to this user using the key generated in step one:
 
 ```
 scp deploy_key.pub example.com:~
@@ -44,25 +46,27 @@ $ sudo chown docker-deploy:docker-deploy /var/lib/docker-deploy/.ssh
 $ sudo install -o docker-deploy -g docker-deploy -m 0600 deploy_key.pub /var/lib/docker-deploy/.ssh/authorized_keys
 $ sudo chmod 0500 /var/lib/docker-deploy/.ssh
 $ rm deploy_key.pub
+
 ```
 
-4. Teste o acesso ao servidor:
+1. Test access to the server:
 
 ```
 ssh -i deploy_key docker-deploy@example.com
+
 ```
 
-5. Adicione a chave privada e o nome de usuário nas secrets do repositório. Suponha que os nomes das secrets sejam `EXAMPLE_COM_SSH_PRIVATE_KEY` e `EXAMPLE_COM_SSH_USER`.
-
-6. Remova sua cópia local da chave SSH:
+1. Add the private key and username to the repository secrets. Suppose the names of the secrets are `EXAMPLE_COM_SSH_PRIVATE_KEY` and `EXAMPLE_COM_SSH_USER`.
+2. Remove your local copy of the SSH key:
 
 ```
 rm deploy_key
+
 ```
 
-7. Configure o workflow do GitHub Actions (por exemplo, `.github/workflows/main.yml`):
+1. Configure the GitHub Actions workflow (for example, `.github/workflows/main.yml`):
 
-```yaml
+```
 name: Deploy
 
 on:
@@ -77,22 +81,23 @@ jobs:
     - uses: actions/checkout@v2
 
     - uses: humbertocrispim/ssh-docker-compose-action@v1.0.0
-      name: Implantação Remota com Docker-Compose
+      name: Remote Deployment with Docker-Compose
       with:
         ssh_host: example.com
         ssh_private_key: ${{ secrets.EXAMPLE_COM_SSH_PRIVATE_KEY }}
         ssh_user: ${{ secrets.EXAMPLE_COM_SSH_USER }}
         docker_compose_prefix: example_com
-        pull: true # Atualizar imagens ao fazer o pull
+        pull: true # Update images when pulling
+
 ```
 
-8. Tudo está pronto!
+1. Everything is set!
 
 # Swarm & Stack
 
-Se você deseja utilizar recursos avançados como secrets, é necessário configurar um cluster Docker Swarm e utilizar o comando 'docker stack' em vez do simples 'docker-compose'. Para isso, defina o parâmetro `use_stack` como `true`:
+If you want to use advanced features such as secrets, you need to set up a Docker Swarm cluster and use the 'docker stack' command instead of the simple 'docker-compose'. To do this, set the `use_stack` parameter to `true`:
 
-```yaml
+```
 name: Deploy
 on:
   push:
@@ -106,7 +111,7 @@ jobs:
     - actions/chockout@v2
 
     - uses: humbertocrispim/ssh-docker-compose-action@v1.0.0
-      name: Implantação Remota com Docker-Stack
+      name: Remote Deployment with Docker-Stack
       with:
         ssh_host: example.com
         ssh_private_key: ${{ secrets.EXAMPLE_COM_SSH_PRIVATE_KEY }}
@@ -114,5 +119,3 @@ jobs:
         docker_compose_prefix: example.com
         use_stack: 'true'
 ```
-
-Isso deve proporcionar uma implantação eficiente e controlada de contêineres Docker em um ambiente remoto através do GitHub Actions.
