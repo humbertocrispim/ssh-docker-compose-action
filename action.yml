@@ -1,6 +1,8 @@
-name: Docker Compose SSH
+name: Docker Compose Deployment (SSH)
+author: 'humbertocrispim'
 branding:
   icon: server
+  color: purple
 description: SSH into host and deploy repository with Docker-Compose
 inputs:
   ssh_private_key:
