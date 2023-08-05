@@ -1,4 +1,5 @@
-## Docker Compose Deployment (SSH)
+#
+
 Esta ação do GitHub proporciona a capacidade de executar o `docker-compose` em um servidor remoto por meio de uma conexão SSH. O processo envolve compactar o espaço de trabalho em um arquivo, transferi-lo via SSH para o servidor remoto e, posteriormente, executar o comando `docker-compose up -d`.
 
 O diferencial desta ação em relação a outras similares é a sua independência de imagens Docker desconhecidas. A ação é construída a partir de um Dockerfile que utiliza a base `alpine:3.18`.
