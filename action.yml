@@ -30,6 +30,9 @@ inputs:
   use_stack:
     description: Use docker stack instead of docker compose ("true" or "false").
     default: 'false'
+  compose_plugin:
+    description: Use compose plugin if "true".
+    default: "false"
 runs:
   using: docker
   image: Dockerfile
