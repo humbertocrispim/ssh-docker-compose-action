@@ -42,3 +42,4 @@ runs:
     DOCKER_COMPOSE_PREFIX: ${{ inputs.docker_compose_prefix }}
     USE_DOCKER_STACK: ${{ inputs.use_stack }}
     PULL: ${{ inputs.pull }}
+    COMPOSE_PLUGIN: ${{ inputs.compose_plugin }}
